@@ -1,5 +1,5 @@
 .data
-	A: .word 22, 7, 20200440, -26, 1, -100,10
+	A: .word 20, 7, 20194685, -25, 1, 28, 9
 	space: .asciiz " "
 .text 
 la $a0, A 	#$Gan a0 la dia chi cua mang A

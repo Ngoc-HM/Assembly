@@ -1,5 +1,5 @@
 .data
-A: .word 7, -2, 28, 1, 20200440, 5
+A: .word 7, -2, 28, 1, 20194685, 5
 Aend: .word 
 .text
 main: la $a0,A #$a0 = Address(A[0])
