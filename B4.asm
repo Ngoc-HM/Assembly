@@ -1,53 +1,61 @@
+#Laboratory Exercise 7, Home Assignment 4
 .data
-	A: .word 22, 7, 20200440, -26, 1, -100,10
-	space: .asciiz " "
-.text 
-la $a0, A 	#$Gan a0 la dia chi cua mang A
-li $a1, 7	# Do dai mang A: n
-li $t0, 1	# chi so i cua vong lap thu nhat
-	
-loop: 		
-add $t1, $t0, $t0 	
-add $t2, $t1, $t1 	
-add $t2, $t2, $a0
-lw  $s1, 0($t2)		# load A[i]; key = arr[i] 	
-addi $t3, $t0, -1		# j = i-1
-
-while:slt $t8, $t3, $zero 	# if j < 0 
-bne $t8, $zero, end_while
-add $t4, $t3, $t3 	
-add $t5, $t4, $t4 	
-add $t5, $t5, $a0
-lw  $s2, 0($t5)		#  arr[j]
-
-slt $t9, $s1, $s2	# key < arr[j]
-beq $t9, $zero, end_while	
-	# Swap
-lw $s3, 4($t5)
-sw $s3, 0($t5) 		# arr[j + 1] = arr[j] 
-sw $s2, 4($t5) 
-
-addi $t3, $t3, -1		# j -= 1
-j   while 
-end_while:
-add $t3, $t3, 1
-mul $s5, $t3, 4 
-add $s6, $s5, $a0
-sw  $s1, 0($s6)	#  arr[j + 1] = key 
-
-add $t0, $t0, 1
-slt $t6, $t0, $a1 	
-beq $t6, $zero, end_loop
-j   loop
-
-end_loop: add $t2, $zero, $a0
-li $t0, 0
-print: li $v0, 1
-lw $a0, 0($t2)
+Message: .asciiz "Ket qua tinh giai thua la: "
+.text
+main: jal WARP
+print: add $a1, $v0, $zero # $a0 = result from N!
+li $v0, 56
+la $a0, Message
 syscall
-li $v0, 4
-la $a0, space
+quit: li $v0, 10 #terminate
 syscall
-addi $t2, $t2, 4    	
-addi $t0, $t0, 1    	
-bne $t0, $a1, print 	
+endmain:
+#---------------------------------------------------------------------
+
+#Procedure WARP: assign value and call FACT
+#---------------------------------------------------------------------
+
+WARP: sw $fp,-4($sp) #save frame pointer (1)
+addi $fp,$sp,0 #new frame pointer point to the top (2)
+addi $sp,$sp,-8 #adjust stack pointer (3)
+sw $ra,0($sp) #save return address (4)
+li $a0,10 #load test input N
+jal FACT #call fact procedure
+nop
+lw $ra,0($sp) #restore return address (5)
+addi $sp,$fp,0 #return stack pointer (6)
+lw $fp,-4($sp) #return frame pointer (7)
+jr $ra
+wrap_end:
+#---------------------------------------------------------------------
+
+#Procedure FACT: compute N!
+#param[in] $a0 integer N
+#return $v0 the largest value
+#----------------------------------------------------------------------
+FACT: sw $fp,-4($sp) #save frame pointer
+addi $fp,$sp,0 #new frame pointer point to stack’s
+top:
+addi $sp,$sp,-12 #allocate space for $fp,$ra,$a0 in
+stack:
+sw $ra,4($sp) #save return address
+sw $a0,0($sp) #save $a0 register
+slti $t0,$a0,2 #if input argument N < 2
+beq $t0,$zero,recursive#if it is false ((a0 = N) >=2)
+nop
+li $v0,1 #return the result N!=1
+j done
+nop
+recursive:
+addi $a0,$a0,-1 #adjust input argument
+jal FACT #recursive call
+nop
+lw $v1,0($sp) #load a0
+mult $v1,$v0 #compute the result
+mflo $v0
+done: lw $ra,4($sp) #restore return address
+lw $a0,0($sp) #restore a0
+addi $sp,$fp,0 #restore stack pointer
+lw $fp,-4($sp) #restore frame pointer
+jr $ra #jump to calling
+fact_end:
