@@ -1,30 +1,30 @@
-.data
-A: .word -2, 6, -1, 3, 20194679,-20194685
+.eqv SEVENSEG_LEFT 0xFFFF0010 # Dia chi cua den led 7 doan trai.
+ # Bit 0 = doan a; 
+ # Bit 1 = doan b; ... 
+# Bit 7 = dau .
+.eqv SEVENSEG_RIGHT 0xFFFF0011 # Dia chi cua den led 7 doan phai
 .text
-main: 	la $a0,A
-	li $a1,6
- 	j mspfx
- 	nop
-continue:
-lock:	j lock
- 	nop
-end_of_main:
-mspfx: 	addi $v0,$zero,0 #initialize length in $v0 to 0
- 	addi $v1,$zero,0 #initialize max sum in $v1to 0
- 	addi $t0,$zero,0 #initialize index i in $t0 to 0
- 	addi $t1,$zero,0 #initialize running sum in $t1 to 0
-loop: 	add $t2,$t0,$t0 #put 2i in $t2
- 	add $t2,$t2,$t2 #put 4i in $t2
-	add $t3,$t2,$a0 #put 4i+A (address of A[i]) in $t3
-	lw $t4,0($t3) #load A[i] from mem(t3) into $t4
-	add $t1,$t1,$t4 #add A[i] to running sum in $t1
-	slt $t5,$v1,$t1 #set $t5 to 1 if max sum < new sum
-	bne $t5,$zero,mdfy #if max sum is less, modify results
-	j test #done?
-mdfy: 	addi $v0,$t0,1 #new max-sum prefix has length i+1
-	addi $v1,$t1,0 #new max sum is the running sum
-test: 	addi $t0,$t0,1 #advance the index i
-	slt $t5,$t0,$a1 #set $t5 to 1 if i<n
-	bne $t5,$zero,loop #repeat if i<n
-done: j continue
-mspfx_end:
+main:
+ li $a0, 0x66 # set value for segments
+ jal SHOW_7SEG_LEFT # show
+ li $a0, 0x3F # set value for segments
+ jal SHOW_7SEG_RIGHT # show 
+exit: li $v0, 10
+ syscall
+endmain:
+#---------------------------------------------------------------
+# Function SHOW_7SEG_LEFT : turn on/off the 7seg
+# param[in] $a0 value to shown 
+# remark $t0 changed
+#---------------------------------------------------------------
+SHOW_7SEG_LEFT: li $t0, SEVENSEG_LEFT # assign port's address
+ sb $a0, 0($t0) # assign new value 
+ jr $ra
+#---------------------------------------------------------------
+# Function SHOW_7SEG_RIGHT : turn on/off the 7seg
+# param[in] $a0 value to shown 
+# remark $t0 changed
+#---------------------------------------------------------------
+SHOW_7SEG_RIGHT: li $t0, SEVENSEG_RIGHT # assign port's address
+ sb $a0, 0($t0) # assign new value
+ jr $ra 

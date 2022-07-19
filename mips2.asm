@@ -1,36 +1,51 @@
-.data
-A: .word 7, -2, 28, 1, 20194685, 5
-Aend: .word 
+.eqv MONITOR_SCREEN 0x10010000 #Dia chi bat dau cua bo nho man hinh
+.eqv RED 0x00FF0000 #Cac gia tri mau thuong su dung
+.eqv GREEN 0x0000FF00
+.eqv BLUE 0x000000FF
+.eqv WHITE 0x00FFFFFF
+.eqv YELLOW 0x00FFFF00
 .text
-main: la $a0,A #$a0 = Address(A[0])
-la $a1, Aend
- addi $a1,$a1,-4 #$a1 = Address(A[n-1])
- j sort #sort
-after_sort: li $v0, 10 #exit
- syscall
-end_main:
 
-sort: beq $a0,$a1,done #single element list is sorted
- j max #call the max procedure
-after_max: lw $t0,0($a1) #load last element into $t0
- sw $t0,0($v0) #copy last element to max location
- sw $v1,0($a1) #copy max value to last element
- addi $a1,$a1,-4 #decrement pointer to last element
- j sort #repeat sort for smaller list
-done: j after_sort
+	add $t1, $zero, $zero		# Khởi tạo biến đếm nhận giá trị đầu vào = 0
+ li $k0, MONITOR_SCREEN #Nap dia chi bat dau cua man hinh
 
-max:
-addi $v0,$a0,0 #init max pointer to first element
-lw $v1,0($v0) #init max value to first value
-addi $t0,$a0,0 #init next pointer to first
-loop:
-beq $t0,$a1,ret #if next=last, return
-addi $t0,$t0,4 #advance to next element
-lw $t1,0($t0) #load next element into $t1
-slt $t2,$t1,$v1 #(next)<(max) ?
-bne $t2,$zero,loop #if (next)<(max), repeat
-addi $v0,$t0,0 #next element is new max element
-addi $v1,$t1,0 #next value is new max value
-j loop #change completed; now repeat
-ret:
-j after_max
+loop:					#Vòng lặp tô bảng màu trắng
+	li $t0, WHITE
+	sw $t0, ($k0)
+	nop 
+	addi $k0, $k0, 4			# Tăng địa chỉ của bảng pixel
+	addi $t1, $t1, 4			# Biến kiểm tra 
+	bne $t1, 256, loop		# Kiểm tra nếu biến kiểm tra nếu khác 256 tức chưa tô hết bảng thì còn lặp lại
+	b print				# Nhảy tới nhãn print
+print:	
+	li $k0, MONITOR_SCREEN
+	li $t0, RED
+	sw $t0, 44($k0)
+	nop
+	li $t0, RED
+	sw $t0, 56($k0)
+	nop
+	li $t0, RED
+	sw $t0, 76($k0)
+	nop
+	li $t0, RED
+	sw $t0, 80($k0)
+	nop
+	li $t0, RED
+	sw $t0, 88($k0)
+	nop
+	li $t0, RED
+	sw $t0, 108($k0)
+	nop
+	li $t0, RED
+	sw $t0, 116($k0)
+	nop
+	li $t0, RED
+	sw $t0, 120($k0)
+	nop
+	li $t0, RED
+	sw $t0, 140($k0)
+	nop
+	li $t0, RED
+	sw $t0, 152($k0)
+	nop
